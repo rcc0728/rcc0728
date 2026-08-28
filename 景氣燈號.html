@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>景氣對策信號折線圖</title>
-  <!-- 引入 Chart.js 圖表庫及其 Annotation 標註插件 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1"></script>
   <style>
@@ -23,7 +22,7 @@
 
     .container {
       display: flex;
-      flex-direction: row;
+      flex-direction: row; /* 桌面端預設：左圖右表 */
       max-width: 1400px;
       margin: 0 auto;
       gap: 20px;
@@ -34,14 +33,33 @@
       height: 85vh;
     }
 
-    /* 左側輸入區 */
+    /* 左側：圖表區 */
+    .chart-section {
+      flex: 2.5;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid #e1e4e8;
+      padding-right: 20px;
+    }
+
+    .chart-section h2 {
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+    }
+
+    .chart-wrapper {
+      flex: 1;
+      position: relative;
+      width: 100%;
+    }
+
+    /* 右側：輸入區 */
     .input-section {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      border-right: 1px solid #e1e4e8;
-      padding-right: 20px;
       min-width: 320px;
     }
 
@@ -107,40 +125,28 @@
 
     .btn-remove:hover { background-color: #d9363e; }
 
-    /* 右側圖表區 */
-    .chart-section {
-      flex: 2.5;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .chart-section h2 {
-      font-size: 1.25rem;
-      margin-bottom: 16px;
-    }
-
-    .chart-wrapper {
-      flex: 1;
-      position: relative;
-      width: 100%;
-    }
-
-    /* RWD 微調 */
+    /* RWD 微調 (手機端模式) */
     @media (max-width: 850px) {
       .container {
         flex-direction: column;
         height: auto;
       }
-      .input-section {
+
+      /* 折線圖在上方 */
+      .chart-section {
+        order: 1;
         border-right: none;
         border-bottom: 1px solid #e1e4e8;
         padding-right: 0;
         padding-bottom: 20px;
-        height: 400px;
+        height: 450px;
       }
-      .chart-section {
-        height: 500px;
+
+      /* 資料表在下方 */
+      .input-section {
+        order: 2;
+        padding-top: 10px;
+        height: 400px;
       }
     }
   </style>
@@ -148,23 +154,20 @@
 <body>
 
 <div class="container">
-  <!-- 左側：輸入表單 -->
+  <div class="chart-section">
+    <h2>景氣對策信號(分) 走勢折線圖</h2>
+    <div class="chart-wrapper">
+      <canvas id="lineChart"></canvas>
+    </div>
+  </div>
+
   <div class="input-section">
     <div class="input-header">
       <h2>景氣對策信號數據</h2>
       <button class="btn-add" onclick="addRow()">+ 新增</button>
     </div>
     <div class="data-list" id="dataList">
-      <!-- 歷史資料將由 JavaScript 自動生成渲染 -->
-    </div>
-  </div>
-
-  <!-- 右側：折線圖區 -->
-  <div class="chart-section">
-    <h2>景氣對策信號(分) 走勢折線圖</h2>
-    <div class="chart-wrapper">
-      <canvas id="lineChart"></canvas>
-    </div>
+      </div>
   </div>
 </div>
 
@@ -366,7 +369,7 @@
               mode: 'index',
               intersect: false
             },
-            // 僅保留 16 與 36 的純水平線，已刪除文字標籤 (label)
+            // 保留無標籤的 16 與 36 水平虛線
             annotation: {
               annotations: {
                 line36: {
